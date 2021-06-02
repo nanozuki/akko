@@ -1,2 +1,3 @@
 # ononoki
-Generate go cli tools
+
+Generate go web APIs and swagger/OpenAPI documents.
