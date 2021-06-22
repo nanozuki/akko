@@ -1,6 +1,6 @@
 package ononoki
 
-import "github.com/nanozuki/ononoki/desc"
+import "github.com/nanozuki/ononoki/typ"
 
-func Resquest(props ...desc.ParamterProp) {}
-func Response(props ...desc.ModelProp)    {}
+func Resquest(props ...typ.ParameterPropBuilder) {}
+func Response(props ...typ.ModelPropBuilder)     {}

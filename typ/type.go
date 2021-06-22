@@ -1,11 +1,25 @@
 package typ
 
 import (
+	"fmt"
 	"reflect"
 
 	"github.com/nanozuki/ononoki/desc"
+	uuid "github.com/satori/go.uuid"
 )
 
+// ModelPropBuilder build model property, and model property can also build parameter property.
+type ModelPropBuilder interface {
+	ParameterProp() *desc.Prop
+	ModelProp() *desc.Prop
+}
+
+// ParameterPropBuilder build property only can be use in parameter.
+type ParameterPropBuilder interface {
+	ParameterProp() *desc.Prop
+}
+
+// Bool returns a TypeInfo with type bool.
 func Bool() *desc.TypeInfo {
 	return &desc.TypeInfo{
 		Type:  desc.TypeBool,
@@ -13,10 +27,7 @@ func Bool() *desc.TypeInfo {
 	}
 }
 
-/* TODO
-func Enum() *desc.TypeInfo {}
-*/
-
+// String returns a TypeInfo with type string.
 func String() *desc.TypeInfo {
 	return &desc.TypeInfo{
 		Type:  desc.TypeString,
@@ -24,6 +35,7 @@ func String() *desc.TypeInfo {
 	}
 }
 
+// Int returns a TypeInfo with type int.
 func Int() *desc.TypeInfo {
 	return &desc.TypeInfo{
 		Type:  desc.TypeInt,
@@ -31,6 +43,7 @@ func Int() *desc.TypeInfo {
 	}
 }
 
+// Float returns a TypeInfo with type float.
 func Float() *desc.TypeInfo {
 	return &desc.TypeInfo{
 		Type:  desc.TypeFloat,
@@ -38,6 +51,7 @@ func Float() *desc.TypeInfo {
 	}
 }
 
+// Array returns a TypeInfo with type array.
 func Array(itemTyp *desc.TypeInfo) *desc.TypeInfo {
 	return &desc.TypeInfo{
 		Type:  desc.TypeArray,
@@ -46,22 +60,47 @@ func Array(itemTyp *desc.TypeInfo) *desc.TypeInfo {
 	}
 }
 
-func Object(name string, props ...*desc.Prop) *desc.TypeInfo {
+// Object to create a object type with giving properties.
+func Object(name string, builders ...ModelPropBuilder) *desc.TypeInfo {
+	var props []*desc.Prop
+	for _, build := range builders {
+		props = append(props, build.ModelProp())
+	}
 	return &desc.TypeInfo{
-		Type:  desc.TypeObject,
-		Ident: name,
-		Props: props,
+		Type:     desc.TypeObject,
+		Ident:    string(desc.NewName(name)),
+		Props:    props,
+		ObjectID: uuid.NewV4().String(),
 	}
 }
 
+// GoType returns a TypeInfo extract from golang value.
 func GoType(i interface{}) *desc.TypeInfo {
 	t := reflect.TypeOf(i)
 	tv := indirect(t)
-	return &desc.TypeInfo{
-		Type:    desc.TypeGoType,
+	ti := &desc.TypeInfo{
 		Ident:   t.String(),
 		PkgPath: tv.PkgPath(),
 	}
+	switch tv.Kind() {
+	case reflect.Bool:
+		ti.Type = desc.TypeBool
+	case reflect.String:
+		ti.Type = desc.TypeString
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32:
+		ti.Type = desc.TypeInt
+	case reflect.Float32, reflect.Float64:
+		ti.Type = desc.TypeFloat
+	case reflect.Array, reflect.Slice:
+		ti.Type = desc.TypeArray
+	case reflect.Struct:
+		ti.Type = desc.TypeObject
+	case reflect.Map:
+		ti.Type = desc.TypeMap
+	default:
+		panic(fmt.Errorf("not support %q", tv))
+	}
+	return ti
 }
 
 // indirect returns the type at the end of indirection.
@@ -72,6 +111,7 @@ func indirect(t reflect.Type) reflect.Type {
 	return t
 }
 
+// Map returns a TypeInfo with type map[string]interface{}.
 func Map() *desc.TypeInfo {
 	return &desc.TypeInfo{
 		Type:  desc.TypeMap,
