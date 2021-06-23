@@ -20,10 +20,11 @@ func OpenAPI(title string, version string) *OpenAPIBuilder {
 	}
 }
 
-func (b *OpenAPIBuilder) Info() *InfoBuilder {
-	return &InfoBuilder{
-		info: b.api.Info,
-	}
+func (b *OpenAPIBuilder) Info(info *InfoBuilder) *OpenAPIBuilder {
+	info.info.Title = b.api.Info.Title
+	info.info.Version = b.api.Info.Version
+	b.api.Info = info.info
+	return b
 }
 
 func (b *OpenAPIBuilder) NewServer(baseURL string) *ServerBuilder {
