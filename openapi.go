@@ -27,14 +27,11 @@ func (b *OpenAPIBuilder) Info(info *InfoBuilder) *OpenAPIBuilder {
 	return b
 }
 
-func (b *OpenAPIBuilder) NewServer(baseURL string) *ServerBuilder {
-	server := &openapi3.Server{
-		URL: baseURL,
+func (b *OpenAPIBuilder) Server(servers ...*ServerBuilder) *OpenAPIBuilder {
+	for _, s := range servers {
+		b.api.Servers = append(b.api.Servers, s.server)
 	}
-	b.api.Servers = append(b.api.Servers, server)
-	return &ServerBuilder{
-		server: server,
-	}
+	return b
 }
 
 func (b *OpenAPIBuilder) NewPath(path string) *PathBuilder {
@@ -45,18 +42,15 @@ func (b *OpenAPIBuilder) NewPath(path string) *PathBuilder {
 	}
 }
 
-func (b *OpenAPIBuilder) WithSecure(provider string, scopes ...string) *OpenAPIBuilder {
+func (b *OpenAPIBuilder) Secure(provider string, scopes ...string) *OpenAPIBuilder {
 	sr := openapi3.NewSecurityRequirement().Authenticate(provider, scopes...)
 	b.api.Security.With(sr)
 	return b
 }
 
-func (b *OpenAPIBuilder) NewTag(name string) *TagBuilder {
-	tag := &openapi3.Tag{
-		Name: name,
+func (b *OpenAPIBuilder) Tag(tags ...*TagBuilder) *OpenAPIBuilder {
+	for _, tag := range tags {
+		b.api.Tags = append(b.api.Tags, tag.tag)
 	}
-	b.api.Tags = append(b.api.Tags, tag)
-	return &TagBuilder{
-		tag: tag,
-	}
+	return b
 }
