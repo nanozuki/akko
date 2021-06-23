@@ -3,15 +3,20 @@ package main
 import (
 	"github.com/nanozuki/ononoki"
 	"github.com/nanozuki/ononoki/prop"
-	"github.com/nanozuki/ononoki/typ"
 )
 
 func main() {
-	api := ononoki.OpenAPI(ononoki.Info("basic", "v1"))
-	ononoki.Resquest(
-		prop.String("name").InPath(),
-	)
-	ononoki.Response(
-		prop.Object("detail", typ.Object("UserDetail", prop.String("name"))),
-	)
+	api := ononoki.OpenAPI("basic", "v1").
+		Info(ononoki.Info().Description("basic server")).
+		Path(
+			ononoki.GET("profile", "/profile").
+				Request(
+					prop.Int("user_id"),
+				).
+				Response(
+					prop.String("name"),
+					prop.String("email"),
+				),
+		)
+	api.Run()
 }

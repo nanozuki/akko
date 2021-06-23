@@ -3,12 +3,12 @@ package ononoki
 type Method string
 
 const (
-	GET     Method = "get"
-	PUT     Method = "put"
-	POST    Method = "post"
-	DELETE  Method = "delete"
-	OPTIONS Method = "options"
-	HEAD    Method = "head"
-	PATCH   Method = "patch"
-	TRACE   Method = "trace"
+	MethodGET     Method = "get"
+	MethodPUT     Method = "put"
+	MethodPOST    Method = "post"
+	MethodDELETE  Method = "delete"
+	MethodOPTIONS Method = "options"
+	MethodHEAD    Method = "head"
+	MethodPATCH   Method = "patch"
+	MethodTRACE   Method = "trace"
 )

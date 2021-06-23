@@ -34,12 +34,9 @@ func (b *OpenAPIBuilder) Server(servers ...*ServerBuilder) *OpenAPIBuilder {
 	return b
 }
 
-func (b *OpenAPIBuilder) NewPath(path string) *PathBuilder {
-	return &PathBuilder{
-		opanapi: b.api,
-		baseURL: path,
-		items:   map[Method]*OperationBuilder{},
-	}
+func (b *OpenAPIBuilder) Path(path *PathBuilder) *OpenAPIBuilder {
+	b.api.Paths[path.path] = path.item
+	return b
 }
 
 func (b *OpenAPIBuilder) Secure(provider string, scopes ...string) *OpenAPIBuilder {
@@ -53,4 +50,8 @@ func (b *OpenAPIBuilder) Tag(tags ...*TagBuilder) *OpenAPIBuilder {
 		b.api.Tags = append(b.api.Tags, tag.tag)
 	}
 	return b
+}
+
+func (b *OpenAPIBuilder) Run() {
+	panic("not implemented")
 }
