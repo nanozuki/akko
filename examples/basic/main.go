@@ -7,6 +7,7 @@ import (
 )
 
 func main() {
+	api := ononoki.OpenAPI(ononoki.Info("basic", "v1"))
 	ononoki.Resquest(
 		prop.String("name").InPath(),
 	)
