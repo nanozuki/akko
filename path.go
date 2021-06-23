@@ -10,67 +10,16 @@ type PathBuilder struct {
 	item *openapi3.PathItem
 }
 
-func CONNECT(id string, path string) *PathBuilder {
+func Path(path string) *PathBuilder {
 	return &PathBuilder{
 		path: path,
 		item: &openapi3.PathItem{},
 	}
 }
 
-func DELETE(id string, path string) *PathBuilder {
-	return &PathBuilder{
-		path: path,
-		item: &openapi3.PathItem{},
-	}
-}
-
-func GET(id string, path string) *PathBuilder {
-	return &PathBuilder{
-		path: path,
-		item: &openapi3.PathItem{},
-	}
-}
-
-func HEAD(id string, path string) *PathBuilder {
-	return &PathBuilder{
-		path: path,
-		item: &openapi3.PathItem{},
-	}
-}
-
-func OPTIONS(id string, path string) *PathBuilder {
-	return &PathBuilder{
-		path: path,
-		item: &openapi3.PathItem{},
-	}
-}
-
-func PATCH(id string, path string) *PathBuilder {
-	return &PathBuilder{
-		path: path,
-		item: &openapi3.PathItem{},
-	}
-}
-
-func POST(id string, path string) *PathBuilder {
-	return &PathBuilder{
-		path: path,
-		item: &openapi3.PathItem{},
-	}
-}
-
-func PUT(id string, path string) *PathBuilder {
-	return &PathBuilder{
-		path: path,
-		item: &openapi3.PathItem{},
-	}
-}
-
-func TRACE(id string, path string) *PathBuilder {
-	return &PathBuilder{
-		path: path,
-		item: &openapi3.PathItem{},
-	}
+func (b *PathBuilder) Ref(ref string) *PathBuilder {
+	b.item.Ref = ref
+	return b
 }
 
 func (b *PathBuilder) Summary(summary string) *PathBuilder {
@@ -90,10 +39,51 @@ func (b *PathBuilder) Servers(servers ...*ServerBuilder) *PathBuilder {
 	return b
 }
 
-func (b *PathBuilder) Request(props ...typ.ParameterPropBuilder) *PathBuilder {
+func (b *PathBuilder) Parameters(parameters ...typ.ParameterPropBuilder) *PathBuilder {
+	panic("not implemented")
+}
+
+func (b *PathBuilder) CONNECT(op *OperationBuilder) *PathBuilder {
+	b.item.Connect = op.operation
 	return b
 }
 
-func (b *PathBuilder) Response(props ...typ.ModelPropBuilder) *PathBuilder {
+func (b *PathBuilder) DELETE(op *OperationBuilder) *PathBuilder {
+	b.item.Delete = op.operation
+	return b
+}
+
+func (b *PathBuilder) GET(op *OperationBuilder) *PathBuilder {
+	b.item.Get = op.operation
+	return b
+}
+
+func (b *PathBuilder) HEAD(op *OperationBuilder) *PathBuilder {
+	b.item.Head = op.operation
+	return b
+}
+
+func (b *PathBuilder) OPTIONS(op *OperationBuilder) *PathBuilder {
+	b.item.Options = op.operation
+	return b
+}
+
+func (b *PathBuilder) PATCH(op *OperationBuilder) *PathBuilder {
+	b.item.Patch = op.operation
+	return b
+}
+
+func (b *PathBuilder) POST(op *OperationBuilder) *PathBuilder {
+	b.item.Post = op.operation
+	return b
+}
+
+func (b *PathBuilder) PUT(op *OperationBuilder) *PathBuilder {
+	b.item.Put = op.operation
+	return b
+}
+
+func (b *PathBuilder) TRACE(op *OperationBuilder) *PathBuilder {
+	b.item.Trace = op.operation
 	return b
 }
