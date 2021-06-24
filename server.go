@@ -16,24 +16,18 @@ func (b *ServerBuilder) Description(desc string) *ServerBuilder {
 }
 
 func (b *ServerBuilder) Variable(name string, v *ServerVariableBuilder) *ServerBuilder {
-	b.server.Variables[name] = v.v
+	v.AttachToServer(b, name)
 	return b
 }
 
-type ServerVariableBuilder struct {
-	v *openapi3.ServerVariable
-}
-
-func ServerVariable(defaultValue string) *ServerVariableBuilder {
-	return &ServerVariableBuilder{&openapi3.ServerVariable{Default: defaultValue}}
-}
-
-func (b *ServerVariableBuilder) Enum(values ...string) *ServerVariableBuilder {
-	b.v.Enum = values
+func (b *ServerBuilder) AttachToAPI(api *OpenAPIBuilder) *ServerBuilder {
+	api.api.Servers = append(api.api.Servers, b.server)
 	return b
 }
 
-func (b *ServerVariableBuilder) Description(desc string) *ServerVariableBuilder {
-	b.v.Description = desc
+func (b *ServerBuilder) AttachToOp(op *OperationBuilder) *ServerBuilder {
+	servers := *op.operation.Servers
+	servers = append(servers, b.server)
+	op.operation.Servers = &servers
 	return b
 }

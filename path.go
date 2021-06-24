@@ -8,6 +8,7 @@ import (
 type PathBuilder struct {
 	path string
 	item *openapi3.PathItem
+	ms   []Middleware
 }
 
 func Path(path string) *PathBuilder {
@@ -17,8 +18,13 @@ func Path(path string) *PathBuilder {
 	}
 }
 
-func (b *PathBuilder) Ref(ref string) *PathBuilder {
-	b.item.Ref = ref
+func (b *PathBuilder) Path(path *PathBuilder) *PathBuilder {
+	path.AttachToPath(b)
+	return b
+}
+
+func (b *PathBuilder) Use(middlewares ...Middleware) *PathBuilder {
+	b.ms = append(b.ms, middlewares...)
 	return b
 }
 
@@ -39,8 +45,15 @@ func (b *PathBuilder) Servers(servers ...*ServerBuilder) *PathBuilder {
 	return b
 }
 
-func (b *PathBuilder) Parameters(parameters ...typ.ParameterPropBuilder) *PathBuilder {
+func buildParameter(pb typ.ParameterPropBuilder) *openapi3.Parameter {
 	panic("not implemented")
+}
+
+func (b *PathBuilder) Parameters(parameters ...typ.ParameterPropBuilder) *PathBuilder {
+	for _, pb := range parameters {
+		b.item.Parameters = append(b.item.Parameters, &openapi3.ParameterRef{Value: buildParameter(pb)})
+	}
+	return b
 }
 
 func (b *PathBuilder) CONNECT(op *OperationBuilder) *PathBuilder {
@@ -86,4 +99,12 @@ func (b *PathBuilder) PUT(op *OperationBuilder) *PathBuilder {
 func (b *PathBuilder) TRACE(op *OperationBuilder) *PathBuilder {
 	b.item.Trace = op.operation
 	return b
+}
+
+func (b *PathBuilder) AttachToPath(path *PathBuilder) *PathBuilder {
+	panic("not implemented")
+}
+
+func (b *PathBuilder) AttachToAPI(api *OpenAPIBuilder) *PathBuilder {
+	panic("not implemented")
 }

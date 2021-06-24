@@ -12,3 +12,5 @@ const (
 	MethodPATCH   Method = "patch"
 	MethodTRACE   Method = "trace"
 )
+
+type Middleware string

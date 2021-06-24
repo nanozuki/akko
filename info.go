@@ -29,3 +29,11 @@ func (b *InfoBuilder) License(license *LicenseBuilder) *InfoBuilder {
 	b.info.License = license.license
 	return b
 }
+
+func (b *InfoBuilder) AttachToAPI(api *OpenAPIBuilder) *InfoBuilder {
+	b.info.Title = api.api.Info.Title
+	b.info.Version = api.api.Info.Version
+
+	api.api.Info = b.info
+	return b
+}

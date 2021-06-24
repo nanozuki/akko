@@ -21,25 +21,22 @@ func OpenAPI(title string, version string) *OpenAPIBuilder {
 }
 
 func (b *OpenAPIBuilder) Info(info *InfoBuilder) *OpenAPIBuilder {
-	info.info.Title = b.api.Info.Title
-	info.info.Version = b.api.Info.Version
-	b.api.Info = info.info
+	info.AttachToAPI(b)
 	return b
 }
 
 func (b *OpenAPIBuilder) Server(servers ...*ServerBuilder) *OpenAPIBuilder {
 	for _, s := range servers {
-		b.api.Servers = append(b.api.Servers, s.server)
+		s.AttachToAPI(b)
 	}
 	return b
 }
 
 func (b *OpenAPIBuilder) Path(path *PathBuilder) *OpenAPIBuilder {
-	b.api.Paths[path.path] = path.item
-	return b
+	panic("not implemented")
 }
 
-func (b *OpenAPIBuilder) Secure(provider string, scopes ...string) *OpenAPIBuilder {
+func (b *OpenAPIBuilder) Security(provider string, scopes ...string) *OpenAPIBuilder {
 	sr := openapi3.NewSecurityRequirement().Authenticate(provider, scopes...)
 	b.api.Security.With(sr)
 	return b
@@ -47,11 +44,7 @@ func (b *OpenAPIBuilder) Secure(provider string, scopes ...string) *OpenAPIBuild
 
 func (b *OpenAPIBuilder) Tag(tags ...*TagBuilder) *OpenAPIBuilder {
 	for _, tag := range tags {
-		b.api.Tags = append(b.api.Tags, tag.tag)
+		tag.AttachToAPI(b)
 	}
 	return b
-}
-
-func (b *OpenAPIBuilder) Run() {
-	panic("not implemented")
 }
