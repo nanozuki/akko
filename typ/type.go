@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/nanozuki/ononoki/desc"
+	"github.com/nanozuki/akko/desc"
 	uuid "github.com/satori/go.uuid"
 )
 

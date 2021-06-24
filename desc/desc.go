@@ -4,7 +4,7 @@ import (
 	"errors"
 	"regexp"
 
-	"github.com/nanozuki/ononoki/strutil"
+	"github.com/nanozuki/akko/strutil"
 )
 
 var nameRe = regexp.MustCompile("^[[:alpha:]][[:word:]]*$")

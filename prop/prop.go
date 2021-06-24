@@ -7,8 +7,8 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/nanozuki/ononoki/desc"
-	"github.com/nanozuki/ononoki/typ"
+	"github.com/nanozuki/akko/desc"
+	"github.com/nanozuki/akko/typ"
 )
 
 /*

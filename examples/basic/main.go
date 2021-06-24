@@ -1,24 +1,38 @@
 package main
 
 import (
-	"github.com/nanozuki/ononoki"
-	"github.com/nanozuki/ononoki/prop"
+	"github.com/nanozuki/akko"
+	"github.com/nanozuki/akko/prop"
 )
 
 func main() {
-	api := ononoki.OpenAPI("basic", "v1").
-		Info(ononoki.Info().Description("basic server")).
+	api := akko.OpenAPI("basic", "v1").
+		Info(akko.Info().Description("basic server")).
 		Path(
-			ononoki.Path("/profile").GET(
-				ononoki.Op("get_profile").
+			akko.Path("/profile").
+				GET(akko.Op("get_profile").
 					Request(
 						prop.Int("user_id"),
 					).
 					Response(
 						prop.String("name"),
 						prop.String("email"),
-					),
-			),
+					)),
 		)
+	/*
+		api := akko.OpenAPI("basic", "v1").
+			Info(akko.Info().Description("basic server"))
+		api.Path("/profile").
+			Service(akko.Service())
+			GET(akko.Op("get_profile").
+				Request(
+					prop.Int("user_id"),
+				).
+				Response(
+					prop.String("name"),
+					prop.String("email"),
+				)),
+			)
+	*/
 	api.Run()
 }

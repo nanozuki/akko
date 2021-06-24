@@ -1,8 +1,8 @@
-package ononoki
+package akko
 
 import (
 	"github.com/getkin/kin-openapi/openapi3"
-	"github.com/nanozuki/ononoki/typ"
+	"github.com/nanozuki/akko/typ"
 )
 
 type PathBuilder struct {

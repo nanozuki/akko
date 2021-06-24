@@ -1,4 +1,4 @@
-package ononoki
+package akko
 
 type Method string
 

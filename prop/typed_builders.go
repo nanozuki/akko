@@ -1,6 +1,6 @@
 package prop
 
-import "github.com/nanozuki/ononoki/desc"
+import "github.com/nanozuki/akko/desc"
 
 type BoolBuilder struct {
 	builder
