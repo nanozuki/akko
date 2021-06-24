@@ -1,9 +1,12 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
-	"os"
+	"io/ioutil"
 	"text/template"
+
+	"golang.org/x/tools/imports"
 )
 
 type BuilderParams struct {
@@ -102,13 +105,17 @@ func (b *BuilderParams) build() {
 func main() {
 	tmpl := template.Must(template.ParseFiles("./gen/builder.tmpl"))
 	filename := "./prop/typed_builders.go"
-	file, err := os.OpenFile(filename, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
-	if err != nil {
-		panic(fmt.Errorf("open file: %w", err))
-	}
-	defer file.Close()
 	defs.build()
-	if err := tmpl.Execute(file, defs); err != nil {
+	buf := bytes.NewBuffer(nil)
+	if err := tmpl.Execute(buf, defs); err != nil {
 		panic(fmt.Errorf("exec template: %w", err))
 	}
+	src, err := imports.Process(filename, nil, nil)
+	if err != nil {
+		panic(fmt.Errorf("format file %s: %w", filename, err))
+	}
+	if err := ioutil.WriteFile(filename, src, 0644); err != nil {
+		panic(fmt.Errorf("write file %s: %w", filename, err))
+	}
+
 }
