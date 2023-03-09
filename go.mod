@@ -1,13 +1,13 @@
 module github.com/nanozuki/akko
 
-go 1.16
+go 1.20
 
 require (
-	github.com/getkin/kin-openapi v0.63.0
-	github.com/go-openapi/inflect v0.19.0
-	github.com/kr/text v0.2.0 // indirect
-	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
-	github.com/satori/go.uuid v1.2.0
-	golang.org/x/tools v0.1.3
-	gopkg.in/check.v1 v1.0.0-20200902074654-038fdea0a05b // indirect
+	github.com/julienschmidt/httprouter v1.3.0
+	gorm.io/gorm v1.24.6
+)
+
+require (
+	github.com/jinzhu/inflection v1.0.0 // indirect
+	github.com/jinzhu/now v1.1.5 // indirect
 )
