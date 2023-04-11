@@ -50,7 +50,7 @@ An annotation and code generation based web framework
    func (a *Applicaton) ListBooks(ctx context.Context, tag string, limit int) ([]*Book, error)
    // [POST=/books body.json->book]
    func (a *Applicaton) CreateBook(ctx context.Context, book *Book) (*Book, error)
-   // [PUT=/books/:id body.json->patch]
+   // [PUT=/books/:id body.json->patch, return.1.json->body]
    func (a *Applicaton) UpdateBook(ctx context.Context, id int64, patch *BookPatch) (*Book, error)
    // [DELETE=/books/:id]
    func (a *Applicaton) DeleteBook(ctx context.Context, id int64) error
