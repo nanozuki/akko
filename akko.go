@@ -1,15 +1,25 @@
 package akko
 
-type Akko struct{}
+import "net/http"
 
-func New() *Akko { return &Akko{} }
+type MountOptions struct{}
 
-func (a *Akko) Attach(adHoc AdHoc) *Akko {
-	return a
+type MountOption func(*MountOptions)
+
+func WithProvider[T any](fn func(*http.Request) (T, error)) MountOption {
+	return func(*MountOptions) {}
 }
 
-type Route interface{} // must be function
-
-func (a *Akko) Mount(base string, routes []Route) *Akko {
-	return a
+func PreRequest(fn func(*http.Request) (*http.Request, error)) MountOption {
+	return func(*MountOptions) {}
 }
+
+func PostResponse(fn func(*http.Response, error) (*http.Response, error)) MountOption {
+	return func(*MountOptions) {}
+}
+
+func WithMiddleware(middleware ...func(http.Handler) http.Handler) MountOption {
+	return func(*MountOptions) {}
+}
+
+func Mount(route string, service any, options ...MountOption) {}
