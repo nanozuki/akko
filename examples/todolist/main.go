@@ -1,5 +1,7 @@
 package main
 
+//go:generate go run ../../cmd/akko/main.go -i ./service -o ./server -mod=github.com/nanozuki/akko/examples/todolist
+
 import (
 	"log"
 
