@@ -1,0 +1,17 @@
+{{define "input_maker"}}
+{{.VarName}}, err := {{.HandlerName}}(r)
+if err != nil {
+    {{.ErrorHandler}}
+}
+{{end}}
+
+{{define "request_handler"}}
+req, err := {{.HandlerName}}(r)
+if err != nil {
+	{{.ErrorHandler}}
+}
+{{end}}
+
+{{define "response_handler"}}
+{{.HandlerName}}(ret)
+{{end}}

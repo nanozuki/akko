@@ -1,0 +1,37 @@
+{{- define "server" -}}
+package {{.Package}}
+
+import (
+{{range .Imports}}{{.}}
+{{end}}
+)
+
+type Server struct {
+	router  *httprouter.Router
+	service {{.Service.TypeName}}
+}
+
+func NewServer(service {{.Service.TypeName}}) *Server {
+	s := &Server{
+		router:  httprouter.New(),
+		service: service,
+	}
+    {{range .Routes}}
+    s.router.{{.Method}}("{{.Path}}", s.{{.HandlerName}})
+    {{end}}
+    retutn s
+}
+
+{{range .Routes}}
+func (s *Server) {{.HandlerName}}(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+    {{.RequestHandlers}}
+    {{.InputMakers}}
+    ret, err := s.service.{{.ServiceMethodName}}(r.Context(), {{.InputParams}})
+	if err != nil {
+        {{.ErrorHandler}}
+	}
+    {{.ResponseHandlers}}
+}
+
+{{end}}
+{{- end -}}

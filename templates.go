@@ -13,4 +13,5 @@ var Templates = template.Must(template.ParseFS(tmplFs, "templates/*.gotmpl"))
 type TmplCommandData struct {
 	ServiceImportPath string
 	ServicePkg        string
+	PkgDir            string
 }

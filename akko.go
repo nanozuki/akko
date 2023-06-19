@@ -1,7 +1,11 @@
 package akko
 
 import (
+	"encoding/json"
 	"fmt"
+	"go/parser"
+	"go/token"
+	"log"
 	"net/http"
 	"reflect"
 	"strings"
@@ -20,39 +24,22 @@ func (g *RouteGroup) String() string {
 		domain = "*"
 	}
 	strs := []string{
-		fmt.Sprintf("Service: %s.%s", g.Service.Typ.PkgPath(), g.Service.Typ.Name()),
+		fmt.Sprintf("Service: %s (%s)", g.Service.Typ.Indentity, g.Service.Typ.PkgPath),
 		fmt.Sprintf("\tDomain: %s", domain),
 		fmt.Sprintf("\tBase: %s", g.Base),
 		"\tMethods:",
 	}
 	for _, m := range g.Service.Methods {
-		strs = append(strs, fmt.Sprintf("\t\t%s", m.Name()))
+		strs = append(strs, fmt.Sprintf("\t\t%s", m.DeclString()))
 	}
 	strs = append(strs, "\tProviders:")
-	for p := range g.Providers {
-		strs = append(strs, fmt.Sprintf("\t\t%s", p))
+	for _, provider := range g.Providers {
+		strs = append(strs, fmt.Sprintf("\t\t%s.%s", provider.Func.PkgPath(), provider.Func.Name()))
 	}
 	return strings.Join(strs, "\n")
 }
 
 type MountOption func(*RouteGroup)
-
-type ServiceInfo struct {
-	Typ     reflect.Type
-	Methods []reflect.Type
-}
-
-func NewServiceInfo[T any](service T) *ServiceInfo {
-	var svc T
-	si := &ServiceInfo{
-		Typ: reflect.TypeOf(svc),
-	}
-	si.Methods = make([]reflect.Type, 0, si.Typ.NumMethod())
-	for i := 0; i < si.Typ.NumMethod(); i++ {
-		si.Methods = append(si.Methods, si.Typ.Method(i).Type)
-	}
-	return si
-}
 
 type Provider[T any] func(*http.Request) (T, error)
 
@@ -63,10 +50,14 @@ type ProviderInfo struct {
 
 func NewProviderInfo[T any](p Provider[T]) ProviderInfo {
 	var t T
-	return ProviderInfo{
+	pi := ProviderInfo{
 		Func:    reflect.TypeOf(p),
 		Product: reflect.TypeOf(t),
 	}
+	if pi.Product.Kind() == reflect.Ptr {
+		pi.Product = pi.Product.Elem()
+	}
+	return pi
 }
 
 func (i *ProviderInfo) Provide() string {
@@ -82,35 +73,72 @@ func WithProvider[T any](p Provider[T]) MountOption {
 			g.Providers = make(map[string]*ProviderInfo)
 		}
 		pi := NewProviderInfo(p)
-		var t T
-		g.Providers[pi.Provide()] = &ProviderInfo{
-			Func:    reflect.TypeOf(p),
-			Product: reflect.TypeOf(t),
-		}
+		g.Providers[pi.Provide()] = &pi
+		fmt.Printf("get provider for %s\n", pi.Provide())
 	}
 }
 
-func PreRequest(fn func(*http.Request) (*http.Request, error)) MountOption {
+type RequestHandler func(*http.Request) (*http.Request, error)
+
+type ReturnHandler func(ret any, w http.ResponseWriter)
+
+type ErrorHandler func(err error, w http.ResponseWriter)
+
+func OnRequest(h RequestHandler) MountOption {
 	return func(*RouteGroup) {}
 }
 
-func PostResponse(fn func(*http.Response, error) (*http.Response, error)) MountOption {
+func OnResponse(h ReturnHandler) MountOption {
 	return func(*RouteGroup) {}
 }
 
-func WithMiddleware(middleware ...func(http.Handler) http.Handler) MountOption {
+func OnError(h ErrorHandler) MountOption {
 	return func(*RouteGroup) {}
+}
+
+func jsonResponse(ret any, w http.ResponseWriter) {
+	if err := json.NewEncoder(w).Encode(ret); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
+var ReturnHandlers = map[string]ReturnHandler{
+	"json": jsonResponse,
 }
 
 var RouteGroups []*RouteGroup
 
-func Mount[Srv any](baseRoute string, service Srv, options ...MountOption) {
+func Mount[Srv any](baseRoute string, service Srv, options ...MountOption) *RouteGroup {
+	srv, err := NewServiceInfo(service)
+	if err != nil {
+		log.Fatalf("parse service %s failed: %s", srv.Typ.Indentity, err)
+	}
 	g := RouteGroup{
 		Base:    baseRoute,
-		Service: NewServiceInfo(service),
+		Service: srv,
 	}
 	for _, opt := range options {
 		opt(&g)
 	}
 	RouteGroups = append(RouteGroups, &g)
+	return &g
+}
+
+func ParseDirectory(dir string) {
+	fset := token.NewFileSet()
+	pkgs, err := parser.ParseDir(fset, dir, nil, parser.ParseComments)
+	if err != nil {
+		log.Fatalf("parse directory %s failed: %s", dir, err)
+	}
+	for pkg, pkgAst := range pkgs {
+		fmt.Printf("parse ast for package: %s\n", pkg)
+		for _, rg := range RouteGroups {
+			if rg.Service.Typ.PkgPath == pkg { // TODO: pkg is not full pkg path, only the package name
+				if err := rg.Service.FillByAst(pkgAst); err != nil {
+					log.Fatalf("fill service %s failed: %s", rg.Service.Typ.Indentity, err)
+				}
+			}
+		}
+	}
 }

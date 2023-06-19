@@ -9,5 +9,5 @@ import (
 type Service struct{}
 
 func AkkoService() {
-	akko.Mount("/v1", Service{}, akko.WithProvider(LoadUserByToken))
+	akko.Mount("/v1", &Service{}, akko.WithProvider(LoadUserByToken))
 }

@@ -1,16 +1,19 @@
-{{define "command"}}
+{{- define "command" -}}
 package main
 
 import (
-  "{{.ServiceImportPath}}"
-  "github.com/nanozuki/akko"
+	"fmt"
+
+	"{{.ServiceImportPath}}"
+	"github.com/nanozuki/akko"
 )
 
 func main() {
-  {{.ServicePkg}}.AkkoService()
-  fmt.Println("Generated Akko, services are:")
-  for _, rg := range akko.RouteGroups {
-    fmt.Printf("%v\n", rg)
-  }
+	{{.ServicePkg}}.AkkoService()
+    akko.ParseDirectory("{{.PkgDir}}")
+	fmt.Println("Generated Akko, services are:")
+	for _, rg := range akko.RouteGroups {
+		fmt.Printf("%v\n", rg)
+	}
 }
-{{end}}
+{{- end -}}
