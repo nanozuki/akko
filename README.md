@@ -78,20 +78,20 @@ _Input_[. _Field_][| *Process*] -> _Destination_[. _Field_]
 
 Input for request:
 
-| input        | return type               | note                                                |
-| ------------ | ------------------------- | --------------------------------------------------- |
-| request      | \*http.Request            |                                                     |
-| param        | []\*akko.Param            | ordered list                                        |
-| param.`a`    | string                    | can be ignore when the name is equal to Destination |
-| query        | url.Values                | alias to 'map[string][]string'                      |
-| query.`a`    | string, []string          |                                                     |
-| header       | http.Header               | alias to 'map[string][]string'                      |
-| header.`a`   | string, []string          |                                                     |
-| cookie       | []\*http.Cookie           |                                                     |
-| cookie.`a`   | string, \*http.Cookie     |                                                     |
-| body         | []byte                    |                                                     |
-| body \| json | - (ready for json decode) |                                                     |
-| body \| form | url.Values                |                                                     |
+| input        | return type                              | note                                                |
+| ------------ | ---------------------------------------- | --------------------------------------------------- |
+| request      | \*http.Request                           |                                                     |
+| param        | []\*akko.Param, map[string]string        | ordered list                                        |
+| param.`a`    | string                                   | can be ignore when the name is equal to Destination |
+| query        | url.Values, map[string]string            | url.Values alias to 'map[string][]string'           |
+| query.`a`    | string, []string                         |                                                     |
+| header       | http.Header, map[string]string           | http.Header alias to 'map[string][]string'          |
+| header.`a`   | string, []string                         |                                                     |
+| cookie       | []\*http.Cookie, map[string]string       |                                                     |
+| cookie.`a`   | string, \*http.Cookie, map[string]string |                                                     |
+| body         | []byte                                   |                                                     |
+| body \| json | - (ready for json decode)                |                                                     |
+| body \| form | url.Values                               |                                                     |
 
 Input for response:
 
@@ -174,13 +174,24 @@ The type of destination can be the input type, or can be convert from input type
    }
    ```
 
+1. map[string]string
+
+   T can be a struct, which every fields are "string", or T implemented akko.MapUnmarshaler:
+
+   ```go
+   type MapUnmarshaler interface {
+       UnmarlshalValues(map[string]string) error
+   }
+
+   ```
+
 1. map[string][]string, url.Values, http.Header
 
-   T can be a struct, which every fields are "[]string convertiable", or T implemented akko.ValuesUnmarshaler:
+   T can be a struct, which every fields are "string or []string convertiable", or T implemented akko.ValuesUnmarshaler:
 
    ```go
    type ValuesUnmarshaler interface {
-       UnmarlshalValues(map[string][]string) erro
+       UnmarlshalValues(map[string][]string) error
    }
 
    ```
