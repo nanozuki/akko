@@ -36,7 +36,7 @@ func (s *Service) GetUserTodos(ctx context.Context, user *User, withCompleted bo
 }
 
 // GetTodoByID returns a todo item by its ID.
-// @get /todos/id+user
+// @get /todos/{id}+user
 func (s *Service) GetTodoByID(ctx context.Context, user *User, id int) (*Todo, error) {
 	for _, todo := range todos {
 		if todo.ID == id {

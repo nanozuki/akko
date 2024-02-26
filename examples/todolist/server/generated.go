@@ -6,37 +6,35 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/julienschmidt/httprouter"
 	"github.com/nanozuki/akko/examples/todolist/service"
 )
 
 type Server struct {
-	router  *httprouter.Router
 	service *service.Service
+	mux     *http.ServeMux
 }
 
 func NewServer(service *service.Service) *Server {
 	s := &Server{
-		router:  httprouter.New(),
 		service: service,
 	}
 
-	s.router.GET("/todos", s.GetUserTodos)
-	s.router.GET("/todos/:id", s.GetTodoByID)
-	s.router.POST("/todos", s.AddTodo)
-	s.router.DELETE("todos/:id", s.DeleteTodo)
-	s.router.PATCH("todos/:id", s.PatchTodo)
-	s.router.GET("/users", s.GetUser)
-	s.router.PATCH("/users/:id", s.PatchUser)
+	s.mux.HandleFunc("GET /v1/todos", s.GetUserTodos)
+	s.mux.HandleFunc("GET /v1/todos/{id}", s.GetTodoByID)
+	s.mux.HandleFunc("POST /v1/todos", s.AddTodo)
+	s.mux.HandleFunc("DELETE /v1/todos/{id}", s.DeleteTodo)
+	s.mux.HandleFunc("PATCH /v1/todos/{id}", s.PatchTodo)
+	s.mux.HandleFunc("GET /v1/users", s.GetUser)
+	s.mux.HandleFunc("PATCH /v1/users/{id}", s.PatchUser)
 
 	return s
 }
 
 func (s *Server) ListenAndServe(address string) error {
-	return http.ListenAndServe(address, s.router)
+	return http.ListenAndServe(address, s.mux)
 }
 
-func (s *Server) GetUserTodos(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+func (s *Server) GetUserTodos(w http.ResponseWriter, r *http.Request) {
 	user, err := service.LoadUserByToken(r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError) // TODO: error code
@@ -54,13 +52,13 @@ func (s *Server) GetUserTodos(w http.ResponseWriter, r *http.Request, _ httprout
 	}
 }
 
-func (s *Server) GetTodoByID(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (s *Server) GetTodoByID(w http.ResponseWriter, r *http.Request) {
 	user, err := service.LoadUserByToken(r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError) // TODO: error code
 		return
 	}
-	id, err := strconv.Atoi(ps.ByName("id"))
+	id, err := strconv.Atoi(r.PathValue("id"))
 	if err != nil {
 		http.Error(w, fmt.Sprintf("invalid params 'id': %v", id), http.StatusBadRequest)
 		return
@@ -76,7 +74,7 @@ func (s *Server) GetTodoByID(w http.ResponseWriter, r *http.Request, ps httprout
 	}
 }
 
-func (s *Server) AddTodo(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (s *Server) AddTodo(w http.ResponseWriter, r *http.Request) {
 	user, err := service.LoadUserByToken(r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError) // TODO: error code
@@ -98,13 +96,13 @@ func (s *Server) AddTodo(w http.ResponseWriter, r *http.Request, ps httprouter.P
 	}
 }
 
-func (s *Server) DeleteTodo(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (s *Server) DeleteTodo(w http.ResponseWriter, r *http.Request) {
 	user, err := service.LoadUserByToken(r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError) // TODO: error code
 		return
 	}
-	id, err := strconv.Atoi(ps.ByName("id"))
+	id, err := strconv.Atoi(r.PathValue("id"))
 	if err != nil {
 		http.Error(w, fmt.Sprintf("invalid params 'id': %v", id), http.StatusBadRequest)
 		return
@@ -115,13 +113,13 @@ func (s *Server) DeleteTodo(w http.ResponseWriter, r *http.Request, ps httproute
 	}
 }
 
-func (s *Server) PatchTodo(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (s *Server) PatchTodo(w http.ResponseWriter, r *http.Request) {
 	user, err := service.LoadUserByToken(r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError) // TODO: error code
 		return
 	}
-	id, err := strconv.Atoi(ps.ByName("id"))
+	id, err := strconv.Atoi(r.PathValue("id"))
 	if err != nil {
 		http.Error(w, fmt.Sprintf("invalid params 'id': %v", id), http.StatusBadRequest)
 		return
@@ -142,7 +140,7 @@ func (s *Server) PatchTodo(w http.ResponseWriter, r *http.Request, ps httprouter
 	}
 }
 
-func (s *Server) GetUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+func (s *Server) GetUser(w http.ResponseWriter, r *http.Request) {
 	user, err := service.LoadUserByToken(r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError) // TODO: error code
@@ -159,7 +157,7 @@ func (s *Server) GetUser(w http.ResponseWriter, r *http.Request, _ httprouter.Pa
 	}
 }
 
-func (s *Server) PatchUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+func (s *Server) PatchUser(w http.ResponseWriter, r *http.Request) {
 	user, err := service.LoadUserByToken(r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError) // TODO: error code

@@ -34,7 +34,7 @@ func LoadUserByToken(req *http.Request) (*User, error) {
 }
 
 // GetUser returns logged in user.
-// [GET /user, return|json->body]
+// @get /users
 func (s *Service) GetUser(ctx context.Context, user *User) (*User, error) {
 	return user, nil
 }
@@ -44,7 +44,7 @@ type UserPatch struct {
 }
 
 // PatchUser updates logged in user.
-// [PATCH /user, body|json->patch, return|json->body]
+// @patch /users/{id}
 func (s *Service) PatchUser(ctx context.Context, user *User, patch UserPatch) (*User, error) {
 	if patch.Name != nil {
 		user.Name = *patch.Name
