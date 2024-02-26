@@ -21,7 +21,7 @@ var todos = []*Todo{
 }
 
 // GetUserTodos returns all of the todos for a user.
-// [GET /todos, query.with_completed->withCompleted, return|json->body]
+// @get /todos?withCompleted+user
 func (s *Service) GetUserTodos(ctx context.Context, user *User, withCompleted bool) ([]Todo, error) {
 	var userTodos []Todo
 	for _, todo := range todos {
@@ -36,7 +36,7 @@ func (s *Service) GetUserTodos(ctx context.Context, user *User, withCompleted bo
 }
 
 // GetTodoByID returns a todo item by its ID.
-// [GET /todos/<id>, return|json->body]
+// @get /todos/id+user
 func (s *Service) GetTodoByID(ctx context.Context, user *User, id int) (*Todo, error) {
 	for _, todo := range todos {
 		if todo.ID == id {
@@ -56,7 +56,7 @@ type TodoInput struct {
 }
 
 // Todo represents a todo item.
-// [POST /todos, body|json->todo, return|json->body]
+// @post /todos+user@todo
 func (s *Service) AddTodo(ctx context.Context, user *User, todo TodoInput) (Todo, error) {
 	newTodo := Todo{
 		ID:        len(todos) + 1,
@@ -70,7 +70,7 @@ func (s *Service) AddTodo(ctx context.Context, user *User, todo TodoInput) (Todo
 }
 
 // DeleteTodo deletes a todo item by its ID.
-// [DELETE /todos/<id>, return|json->body]
+// @delete /todos/{id}+user
 func (s *Service) DeleteTodo(ctx context.Context, user *User, id int) error {
 	for i, todo := range todos {
 		if todo.ID == id {
@@ -91,7 +91,7 @@ type TodoPatch struct {
 }
 
 // PatchTodo updates a todo item by its ID.
-// [PATCH /todos/<id>, body|json->todoPatch, return|json->body]
+// @patch /todos/{id}+user@patch
 func (s *Service) PatchTodo(ctx context.Context, user *User, id int, patch TodoPatch) (*Todo, error) {
 	var todo Todo
 	for _, t := range todos {
